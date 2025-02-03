@@ -3,8 +3,10 @@ import toast from "react-hot-toast";
 import axios from "../lib/axios";
 
 
-export const productStore = create((set) => ({
+export const productStore = create((set, get) => ({
     products : [],
+    product : null,
+    setProduct : (product) => set({product}),
     setProducts : (products) => set({products}),
 
     createProduct : async (productData) => {
@@ -16,6 +18,14 @@ export const productStore = create((set) => ({
         } catch (error) {
             toast.error(error.response.data.error);
         }
+    },
+    fetchProductById : async (productId) => {
+      const state = get();
+      const existingProduct = state.products.find((p) => p._id == productId);
+      if(existingProduct){
+        set({product : existingProduct});
+        return;
+      }
     },
     fetchAllProducts : async () => {
         try {

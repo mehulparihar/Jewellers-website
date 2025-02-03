@@ -1,14 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { productStore } from '../stores/productStore';
+import { FiPlus, FiList, FiTrash2, FiStar, FiChevronDown, FiUploadCloud } from 'react-icons/fi';
 
 const AdminPage = () => {
     const { createProduct, fetchAllProducts, deleteProduct, toggleFeaturedProduct, products } = productStore();
-    const [view, setView] = useState('create'); // 'create' or 'list'
-    // const [products, setProducts] = useState([]);
+    const [view, setView] = useState('create');
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [subcategories, setSubcategories] = useState([]);
+
+    const categories = {
+        "Rings": ["Engagement", "Classic", "Solitaire", "Casual", "Navratna", "Mangalsutra ring", "Couple Bands", "Eternity"],
+        "Earrings": ["Studs", "Dangles", "Sui Dhaga", "Navratna", "Jhumka", "Hoops", "Solitaire"],
+        "Necklace": ["Collar", "Layered", "Pendant necklace", "Charm", "Delicate", "Lariat"],
+        "Bangles & Bracelets": ["Kada", "Delicate Bangles", "Oval Bracelets", "Tennis Bracelets", "Chain Bracelets", "Flexi Bracelets", "Eternity Bracelets"],
+        "Mangalsutras & Pendants": ["Mangalsutra Ring", "Mangalsutra With Chain", "Mangalsutra Bracelets", "Mangalsutra Chain", "Solitaire Mangalsutra", "Initial Pendants", "Solitaire Pendants", "Pendants With Chain", "Casual Pendants"],
+        "Other Jewellery": ["Peakock", "Chafa", "Butterfly", "Evil Eye", "Miracle Plate", "Kyra"]
+    };
+
+
     useEffect(() => {
         fetchAllProducts();
     }, [fetchAllProducts])
     // console.log("product", products);
+
+    const [expandedSections, setExpandedSections] = useState({
+        basic: true,
+        metal: false,
+        price: false
+    });
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.subCategory.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
 
     const [productData, setProductData] = useState({
         name: '',
@@ -57,6 +83,10 @@ const AdminPage = () => {
     }
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if (name === "category") {
+            setSelectedCategory(value);
+            setSubcategories(categories[value] || []);
+        }
         setProductData((prevData) => {
             const keys = name.split('.');
             if (keys.length > 1) {
@@ -75,360 +105,314 @@ const AdminPage = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        console.log(productData);
-        // setProducts([...products, productData]);
-        await createProduct(productData);
-        alert('Product added successfully!');
-        setProductData({
-            name: '',
-            description: '',
-            price: '',
-            image: '',
-            category: '',
-            subCategory: '',
-            isFeatured: false,
-            Basic_Details: {
-                Item_Code: '',
-                Design_Number: '',
-                Item_Type: '',
-                Gross_Weight: '',
-                Net_Weight: ''
-            },
-            Metal_Detail: {
-                Metal_Type: '',
-                Metal_Colour: '',
-                Metal_Purity: '',
-                Stone_Weight: ''
-            },
-            Price_Breakup: {
-                Metal: '',
-                Making_Charges: '',
-                Gst: '',
-                Discount: '',
-                Other_Charges: ''
-            }
-        });
+        try {
+            await createProduct(productData);
+            toast.success('Product added successfully!', {
+                position: 'bottom-center',
+                style: {
+                    background: '#1f2937',
+                    color: '#fff'
+                }
+            });
+            setProductData({
+                name: '',
+                description: '',
+                price: '',
+                image: '',
+                category: '',
+                subCategory: '',
+                isFeatured: false,
+                Basic_Details: {
+                    Item_Code: '',
+                    Design_Number: '',
+                    Item_Type: '',
+                    Gross_Weight: '',
+                    Net_Weight: ''
+                },
+                Metal_Detail: {
+                    Metal_Type: '',
+                    Metal_Colour: '',
+                    Metal_Purity: '',
+                    Stone_Weight: ''
+                },
+                Price_Breakup: {
+                    Metal: '',
+                    Making_Charges: '',
+                    Gst: '',
+                    Discount: '',
+                    Other_Charges: ''
+                }
+            });
+
+        } catch (error) {
+            toast.error('Failed to create product', {
+                position: 'bottom-center',
+                style: {
+                    background: '#1f2937',
+                    color: '#fff'
+                }
+            });
+        }
+
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
-            <h1 className="text-3xl font-bold text-center mb-8">Admin Dashboard</h1>
+        <div className="min-h-screen bg-gray-50 p-8">
+            <div className="max-w-7xl mx-auto">
+                <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Jewelry Inventory Manager
+                </h1>
 
-            <div className="flex justify-center gap-4 mb-6">
-                <button
-                    onClick={() => handleToggle('create')}
-                    className={`px-4 py-2 font-semibold text-white rounded-lg ${view === 'create' ? 'bg-blue-600' : 'bg-gray-400'
+                {/* View Toggle */}
+                <div className="flex justify-center gap-4 mb-8 bg-white p-2 rounded-full shadow-sm">
+                    <button
+                        onClick={() => handleToggle('create')}
+                        className={`px-6 py-3 flex items-center gap-2 font-medium rounded-full transition-colors ${
+                            view === 'create' 
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'text-gray-500 hover:bg-gray-100'
                         }`}
-                >
-                    Create Product
-                </button>
-                <button
-                    onClick={() => handleToggle('list')}
-                    className={`px-4 py-2 font-semibold text-white rounded-lg ${view === 'list' ? 'bg-blue-600' : 'bg-gray-400'
+                    >
+                        <FiPlus className="text-lg" />
+                        Add Product
+                    </button>
+                    <button
+                        onClick={() => handleToggle('list')}
+                        className={`px-6 py-3 flex items-center gap-2 font-medium rounded-full transition-colors ${
+                            view === 'list' 
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'text-gray-500 hover:bg-gray-100'
                         }`}
-                >
-                    List All Products
-                </button>
-            </div>
+                    >
+                        <FiList className="text-lg" />
+                        View Inventory
+                    </button>
+                </div>
 
-            {view === 'list' && (
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold mb-4">All Products</h2>
-                    {products.length > 0 ? (
-                        <table className="table-auto w-full border border-gray-300">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    <th className="px-4 py-2 border">Name</th>
-                                    <th className="px-4 py-2 border">Price</th>
-                                    <th className="px-4 py-2 border">Category</th>
-                                    <th className="px-4 py-2 border">Subcategory</th>
-                                    <th className="px-4 py-2 border">Featured</th>
-                                    <th className="px-4 py-2 border">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((product, index) => (
-                                    <tr key={index} className="text-center">
-                                        <td className="px-4 py-2 border">{product.name}</td>
-                                        <td className="px-4 py-2 border">₹{product.price}</td>
-                                        <td className="px-4 py-2 border">{product.category}</td>
-                                        <td className="px-4 py-2 border">{product.subCategory}</td>
-                                        <td className="px-4 py-2 border">
-                                            <button
-                                                onClick={() => toggleFeaturedProduct(product._id)}
-                                                className={`px-2 py-1 rounded ${product.isFeatured ? 'bg-green-500 text-white' : 'bg-gray-300 text-black'
-                                                    }`}
-                                            >
-                                                {product.isFeatured ? 'Yes' : 'No'}
-                                            </button>
-                                        </td>
-                                        <td className="px-4 py-2 border">
-                                            <button
-                                                onClick={() => deleteProduct(product._id)}
-                                                className="px-2 py-1 bg-red-500 text-white rounded"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                {view === 'list' && (
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div className="p-6 border-b border-gray-200">
+                            <h2 className="text-2xl font-semibold text-gray-800">Product Inventory</h2>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        {['Product Name', 'Price', 'Category', 'Subcategory', 'Featured', 'Actions'].map((header) => (
+                                            <th key={header} className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase">
+                                                {header}
+                                            </th>
+                                        ))}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <p>No products available.</p>
-                    )}
-                </div>
-            )}
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {products.map((product) => (
+                                        <tr key={product._id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 font-medium text-gray-800">{product.name}</td>
+                                            <td className="px-6 py-4">₹{product.price}</td>
+                                            <td className="px-6 py-4 text-gray-600">{product.category}</td>
+                                            <td className="px-6 py-4 text-gray-600">{product.subCategory}</td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => toggleFeaturedProduct(product._id)}
+                                                    className={`px-3 py-1 rounded-full flex items-center gap-2 text-sm ${
+                                                        product.isFeatured
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-gray-100 text-gray-600'
+                                                    }`}
+                                                >
+                                                    <FiStar className="text-sm" />
+                                                    {product.isFeatured ? 'Featured' : 'Standard'}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => deleteProduct(product._id)}
+                                                    className="p-2 hover:bg-red-100 rounded-lg text-red-600 hover:text-red-700 transition-colors"
+                                                >
+                                                    <FiTrash2 className="text-lg" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
 
-            {view === 'create' && (
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold mb-4">Create Product</h2>
-                    <form onSubmit={handleFormSubmit}>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Product Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={productData.name}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter product name"
-                            />
+                {view === 'create' && (
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div className="p-6 border-b border-gray-200">
+                            <h2 className="text-2xl font-semibold text-gray-800">New Product Creation</h2>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Description</label>
-                            <textarea
-                                name="description"
-                                value={productData.description}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter product description"
-                            ></textarea>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Price</label>
-                            <input
-                                type="number"
-                                name="price"
-                                value={productData.price}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter product price"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Upload Image</label>
-                            <input
-                                type="file"
-                                name="image"
-                                // value={productData.image}
-                                onChange={handleImageChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter image URL"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Category</label>
-                            <input
-                                type="text"
-                                name="category"
-                                value={productData.category}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter product category"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Sub Category</label>
-                            <input
-                                type="text"
-                                name="subCategory"
-                                value={productData.subCategory}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter product sub category"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Is Featured</label>
-                            <input
-                                type="checkbox"
-                                name="isFeatured"
-                                checked={productData.isFeatured}
-                                onChange={(e) =>
-                                    setProductData({ ...productData, isFeatured: e.target.checked })
-                                }
-                                className="w-5 h-5"
-                            />
-                        </div>
-                        {/* Basic Details */}
-                        <h3 className="text-xl font-bold mt-4">Basic Details</h3>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Item Code</label>
-                            <input
-                                type="text"
-                                name="Basic_Details.Item_Code"
-                                value={productData.Basic_Details.Item_Code}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter item code"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Design Number</label>
-                            <input
-                                type="text"
-                                name="Basic_Details.Design_Number"
-                                value={productData.Basic_Details.Design_Number}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter design number"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Item type</label>
-                            <input
-                                type="text"
-                                name="Basic_Details.Item_Type"
-                                value={productData.Basic_Details.Item_Type}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter design number"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Gross Weight</label>
-                            <input
-                                type="text"
-                                name="Basic_Details.Gross_Weight"
-                                value={productData.Basic_Details.Gross_Weight}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter design number"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Net Weight</label>
-                            <input
-                                type="text"
-                                name="Basic_Details.Net_Weight"
-                                value={productData.Basic_Details.Net_Weight}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter design number"
-                            />
-                        </div>
-                        {/* Metal Details */}
-                        <h3 className="text-xl font-bold mt-4">Metal Details</h3>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Metal Type</label>
-                            <input
-                                type="text"
-                                name="Metal_Detail.Metal_Type"
-                                value={productData.Metal_Detail.Metal_Type}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Metal Colour</label>
-                            <input
-                                type="text"
-                                name="Metal_Detail.Metal_Colour"
-                                value={productData.Metal_Detail.Metal_Colour}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Metal Purity</label>
-                            <input
-                                type="text"
-                                name="Metal_Detail.Metal_Purity"
-                                value={productData.Metal_Detail.Metal_Purity}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Stone Weight</label>
-                            <input
-                                type="text"
-                                name="Metal_Detail.Stone_Weight"
-                                value={productData.Metal_Detail.Stone_Weight}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <h3 className="text-xl font-bold mt-4">Price Breakup</h3>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Metal</label>
-                            <input
-                                type="text"
-                                name="Price_Breakup.Metal"
-                                value={productData.Price_Breakup.Metal}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter Metal"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Making Charges</label>
-                            <input
-                                type="text"
-                                name="Price_Breakup.Making_Charges"
-                                value={productData.Price_Breakup.Making_Charges}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Gst</label>
-                            <input
-                                type="text"
-                                name="Price_Breakup.Gst"
-                                value={productData.Price_Breakup.Gst}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Discount</label>
-                            <input
-                                type="text"
-                                name="Price_Breakup.Discount"
-                                value={productData.Price_Breakup.Discount}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Other Charges</label>
-                            <input
-                                type="text"
-                                name="Price_Breakup.Other_Charges"
-                                value={productData.Price_Breakup.Other_Charges}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                placeholder="Enter metal type"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
-                        >
-                            Add Product
-                        </button>
-                    </form>
-                </div>
-            )}
+                        
+                        <form onSubmit={handleFormSubmit} className="p-6 space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Product Info */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={productData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                        <textarea
+                                            name="description"
+                                            value={productData.description}
+                                            onChange={handleInputChange}
+                                            rows="3"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Pricing & Categories */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                name="price"
+                                                value={productData.price}
+                                                onChange={handleInputChange}
+                                                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                            <div className="relative">
+                                                <select
+                                                    name="category"
+                                                    value={productData.category}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Select Category</option>
+                                                    {Object.keys(categories).map((category) => (
+                                                        <option key={category} value={category}>{category}</option>
+                                                    ))}
+                                                </select>
+                                                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Subcategory</label>
+                                            <div className="relative">
+                                                <select
+                                                    name="subCategory"
+                                                    disabled={!selectedCategory}
+                                                    value={productData.subCategory}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                                                >
+                                                    <option value="">Select Subcategory</option>
+                                                    {subcategories.map((subcat) => (
+                                                        <option key={subcat} value={subcat}>{subcat}</option>
+                                                    ))}
+                                                </select>
+                                                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Image Upload */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
+                                    <input
+                                        type="file"
+                                        name="image"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                        id="fileUpload"
+                                    />
+                                    <label
+                                        htmlFor="fileUpload"
+                                        className="cursor-pointer flex flex-col items-center gap-3"
+                                    >
+                                        <FiUploadCloud className="text-3xl text-gray-400" />
+                                        <div>
+                                            <span className="text-blue-600 font-medium">Click to upload</span>
+                                            <span className="text-gray-500 ml-2">or drag and drop</span>
+                                        </div>
+                                        {productData.image && (
+                                            <img 
+                                                src={productData.image} 
+                                                alt="Preview" 
+                                                className="mt-4 h-32 w-32 object-contain rounded-lg border"
+                                            />
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Sections */}
+                            {['Basic_Details', 'Metal_Detail', 'Price_Breakup'].map((section) => (
+                                <div key={section} className="border border-gray-200 rounded-lg">
+                                    <div className="p-4 bg-gray-50 border-b border-gray-200">
+                                        <h3 className="font-medium text-gray-800">
+                                            {section.replace('_', ' ')}
+                                        </h3>
+                                    </div>
+                                    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {Object.keys(productData[section]).map((field) => (
+                                            <div key={field}>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    {field.replace('_', ' ')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name={`${section}.${field}`}
+                                                    value={productData[section][field]}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Featured Toggle */}
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    name="isFeatured"
+                                    checked={productData.isFeatured}
+                                    onChange={(e) => setProductData({ ...productData, isFeatured: e.target.checked })}
+                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                                />
+                                <label className="text-sm font-medium text-gray-700">
+                                    Mark as Featured Product
+                                </label>
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                                >
+                                    Create Product
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
