@@ -1,377 +1,289 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Popover, Transition } from '@headlessui/react'
 import { XMarkIcon, Bars3Icon, ShoppingBagIcon, HeartIcon, MagnifyingGlassIcon, } from '@heroicons/react/24/outline'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { userStore } from '../stores/userStore'
 import { cartStore } from '../stores/cartStore'
+import { rateStore } from '../stores/rateStore'
 
-const navigation = {
-  categories: [
-    {
-      id: 'Rings',
-      name: 'Rings',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/mega-menu-category-01.jpg',
-          imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-        },
-        {
-          name: 'Basic Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/mega-menu-category-02.jpg',
-          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Shop By Style',
-          name: 'Shop By Style',
-          items: [
-            { name: 'Engagement', href: '#' },
-            { name: 'Classic', href: '#' },
-            { name: 'Solitaire', href: '#' },
-            { name: 'Casual', href: '#' },
-            { name: 'Navratna', href: '#' },
-            { name: 'Mangalsutra ring', href: '#' },
-            { name: 'Couple Bands', href: '#' },
-            { name: 'Eternity', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'Shop By Material',
-          name: 'Shop By Material',
-          items: [
-            { name: 'Diamond', href: '#' },
-            { name: 'Platinum', href: '#' },
-            { name: 'Gemstone', href: '#' },
-            { name: 'Gold', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'Earrings',
-      name: 'Earrings',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Shop By Style',
-          name: 'Shop By Style',
-          items: [
-            { name: 'Studs', href: '#' },
-            { name: 'Dangles', href: '#' },
-            { name: 'Sui Dhaga', href: '#' },
-            { name: 'Navratna', href: '#' },
-            { name: 'Jhumka', href: '#' },
-            { name: 'Hoops', href: '#' },
-            { name: 'Solitaire', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'Shop By Material',
-          name: 'Shop By Material',
-          items: [
-            { name: 'Diamond', href: '#' },
-            { name: 'Platinum', href: '#' },
-            { name: 'Gemstone', href: '#' },
-            { name: 'Gold', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'Necklace',
-      name: 'Necklace',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Shop By Style',
-          name: 'Shop By Style',
-          items: [
-            { name: 'Collar', href: '#' },
-            { name: 'Layered', href: '#' },
-            { name: 'Pendant necklace', href: '#' },
-            { name: 'Charm', href: '#' },
-            { name: 'Delicate', href: '#' },
-            { name: 'Lariat', href: '#' },
-          ],
-        },
-        {
-          id: 'Shop By Material',
-          name: 'Shop By Material',
-          items: [
-            { name: 'Diamond', href: '#' },
-            { name: 'Platinum', href: '#' },
-            { name: 'Gemstone', href: '#' },
-            { name: 'Gold', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'Bangles & Bracelets',
-      name: 'Bangles & Bracelets',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Shop By Style',
-          name: 'Shop By Style',
-          items: [
-            { name: 'Kada', href: '#' },
-            { name: 'Delicate Bangles', href: '#' },
-            { name: 'Oval Bracelets', href: '#' },
-            { name: 'Tennis Bracelets', href: '#' },
-            { name: 'Chain Bracelets', href: '#' },
-            { name: 'Flexi Bracelets', href: '#' },
-            { name: 'Eternity Braceltes', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'Shop By Material',
-          name: 'Shop By Material',
-          items: [
-            { name: 'Diamond', href: '#' },
-            { name: 'Platinum', href: '#' },
-            { name: 'Gemstone', href: '#' },
-            { name: 'Gold', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'Mangalsutras & Pendants',
-      name: 'Mangalsutras & Pendants',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Shop By Style',
-          name: 'Shop By Style',
-          items: [
-            { name: 'Mangalsutra Ring', href: '#' },
-            { name: 'Mangalsutra With Chain', href: '#' },
-            { name: 'Mangalsutra Bracelets', href: '#' },
-            { name: 'Mangalsutra Chain', href: '#' },
-            { name: 'Solitaire Mangalsutra', href: '#' },
-            { name: 'Initial Pendants', href: '#' },
-            { name: 'Solitaire Pendants', href: '#' },
-            { name: 'Pendants With Chain', href: '#' },
-            { name: 'Casual Pendants', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'Shop By Material',
-          name: 'Shop By Material',
-          items: [
-            { name: 'Diamond', href: '#' },
-            { name: 'Platinum', href: '#' },
-            { name: 'Gemstone', href: '#' },
-            { name: 'Gold', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'Other Jewellery',
-      name: 'Other Jewellery',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      sections: [
-        {
-          id: 'Featured Collection',
-          name: 'Featured Collection',
-          items: [
-            { name: 'Peakock', href: '#' },
-            { name: 'Chafa', href: '#' },
-            { name: 'Butterfly', href: '#' },
-            { name: 'Evil Eye', href: '#' },
-            { name: 'Miracle Plate', href: '#' },
-            { name: 'Kyra', href: '#' },
-          ],
-        },
-        {
-          id: 'Jewellery',
-          name: 'Jewellery',
-          items: [
-            { name: '18kt Jewellery', href: '#' },
-            { name: '22kt Jewellery', href: '#' },
-          ],
-        },
-        {
-          id: 'Category',
-          name: 'Category',
-          items: [
-            { name: 'Under 10k', href: '#' },
-            { name: '10k - 30k', href: '#' },
-            { name: '30k - 50k', href: '#' },
-            { name: '50k - 70k', href: '#' },
-            { name: 'Above 70k', href: '#' },
-            { name: 'Men', href: '#' },
-            { name: 'Women', href: '#' },
-            { name: 'Kids', href: '#' },
-          ],
-        },
-      ],
-    },
-
-  ],
-  pages: [
-    { name: 'Stores', href: '#' },
-  ],
-}
 
 const Navbar = () => {
+  const { gold, silver, platinum, fetchRates } = rateStore();
+  useEffect(() => {
+    fetchRates();
+  }, [fetchRates]);
+  const navigation = {
+    categories: [
+      {
+        id: 'Rings',
+        name: 'Rings',
+        href: '/category/rings',
+        sections: [
+          {
+            id: 'Shop By Style',
+            name: 'Shop By Style',
+            items: [
+              { name: 'Engagement', href: '/products/shop/Rings/Engagement' },
+              { name: 'Classic', href: '/products/shop/Rings/Classic' },
+              { name: 'Solitaire', href: '/products/shop/Rings/Solitaire' },
+              { name: 'Casual', href: '/products/shop/Rings/Casual' },
+              { name: 'Navratna', href: '/products/shop/Rings/Navratna' },
+              { name: 'Mangalsutra ring', href: '/products/shop/Rings/Mangalsutra-ring' },
+              { name: 'Couple Bands', href: '/products/shop/Rings/Couple-Bands' },
+              { name: 'Eternity', href: '/products/shop/Rings/Eternity' },
+              { name: 'Browse All', href: '/category/Rings' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'Earrings',
+        name: 'Earrings',
+        href: '/category/earrings',
+        sections: [
+          {
+            id: 'Shop By Style',
+            name: 'Shop By Style',
+            items: [
+              { name: 'Studs', href: '/products/shop/Earrings/Studs' },
+              { name: 'Dangles', href: '/products/shop/Earrings/Dangles' },
+              { name: 'Sui Dhaga', href: '/products/shop/Earrings/Sui-Dhaga' },
+              { name: 'Navratna', href: '/products/shop/Earrings/Navratna' },
+              { name: 'Jhumka', href: '/products/shop/Earrings/Jhumka' },
+              { name: 'Hoops', href: '/products/shop/Earrings/Hoops' },
+              { name: 'Solitaire', href: '/products/shop/Earrings/Solitaire' },
+              { name: 'Browse All', href: '/category/Earrings' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'Necklace',
+        name: 'Necklace',
+        href: '/category/necklace',
+        sections: [
+          {
+            id: 'Shop By Style',
+            name: 'Shop By Style',
+            items: [
+              { name: 'Collar', href: '/products/shop/Necklace/Collar' },
+              { name: 'Layered', href: '/products/shop/Necklace/Layered' },
+              {
+                name: 'Pendant necklace',
+                href: '/products/shop/Necklace/Pendant-necklace',
+              },
+              { name: 'Charm', href: '/products/shop/Necklace/Charm' },
+              { name: 'Delicate', href: '/products/shop/Necklace/Delicate' },
+              { name: 'Lariat', href: '/products/shop/Necklace/Lariat' },
+              { name: 'Brouse All', href: '/category/Necklace' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'Bangles & Bracelets',
+        name: 'Bangles & Bracelets',
+        href: '/category/bangles-bracelets',
+        sections: [
+          {
+            id: 'Shop By Style',
+            name: 'Shop By Style',
+            items: [
+              { name: 'Kada', href: '/products/shop/Bangles-&-Bracelets/Kada' },
+              {
+                name: 'Delicate Bangles',
+                href: '/products/shop/Bangles-&-Bracelets/Delicate-Bangles',
+              },
+              {
+                name: 'Oval Bracelets',
+                href: '/products/shop/Bangles-&-Bracelets/Oval-Bracelets',
+              },
+              {
+                name: 'Tennis Bracelets',
+                href: '/products/shop/Bangles-&-Bracelets/Tennis-Bracelets',
+              },
+              {
+                name: 'Chain Bracelets',
+                href: '/products/shop/Bangles-&-Bracelets/Chain-Bracelets',
+              },
+              {
+                name: 'Flexi Bracelets',
+                href: '/products/shop/Bangles-&-Bracelets/Flexi-Bracelets',
+              },
+              {
+                name: 'Eternity Braceltes',
+                href: '/products/shop/Bangles-&-Bracelets/Eternity-Braceltes',
+              },
+              { name: 'Browse All', href: '/category/Bangles-&-Bracelets' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'Mangalsutras & Pendants',
+        name: 'Mangalsutras & Pendants',
+        href: '/category/mangalsutras-pendants',
+        sections: [
+          {
+            id: 'Shop By Style',
+            name: 'Shop By Style',
+            items: [
+              {
+                name: 'Mangalsutra Ring',
+                href: '/products/shop/Mangalsutras-&-Pendants/Mangalsutra-Ring',
+              },
+              {
+                name: 'Mangalsutra With Chain',
+                href: '/products/shop/Mangalsutras-&-Pendants/Mangalsutra-With-Chain',
+              },
+              {
+                name: 'Mangalsutra Bracelets',
+                href: '/products/shop/Mangalsutras-&-Pendants/Mangalsutra-Bracelets',
+              },
+              {
+                name: 'Mangalsutra Chain',
+                href: '/products/shop/Mangalsutras-&-Pendants/Mangalsutra-Chain',
+              },
+              {
+                name: 'Solitaire Mangalsutra',
+                href: '/products/shop/Mangalsutras-&-Pendants/Solitaire-Mangalsutra',
+              },
+              {
+                name: 'Initial Pendants',
+                href: '/products/shop/Mangalsutras-&-Pendants/Initial-Pendants',
+              },
+              {
+                name: 'Solitaire Pendants',
+                href: '/products/shop/Mangalsutras-&-Pendants/Solitaire-Pendants',
+              },
+              {
+                name: 'Pendants With Chain',
+                href: '/products/shop/Mangalsutras-&-Pendants/Pendants-With-Chain',
+              },
+              {
+                name: 'Casual Pendants',
+                href: '/products/shop/Mangalsutras-&-Pendants/Casual-Pendants',
+              },
+              { name: 'Browse All', href: '/category/Mangalsutras-&-Pendants' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'Other Jewellery',
+        name: 'Other Jewellery',
+        href: '/category/other-jewellery',
+        sections: [
+          {
+            id: 'Featured Collection',
+            name: 'Featured Collection',
+            items: [
+              { name: 'Peakock', href: '/products/shop/Other-Jewellery/Peakock' },
+              { name: 'Chafa', href: '/products/shop/Other-Jewellery/Chafa' },
+              { name: 'Butterfly', href: '/products/shop/Other-Jewellery/Butterfly' },
+              { name: 'Evil Eye', href: '/products/shop/Other-Jewellery/Evil-Eye' },
+              { name: 'Miracle Plate', href: '/products/shop/Other-Jewellery/Miracle-Plate' },
+              { name: 'Kyra', href: '/products/shop/Other-Jewellery/Kyra' },
+              { name: 'Brouse All', href: '/category/Other-Jewellery' },
+
+            ],
+          },
+        ],
+      },
+      // Metal Rate remains unchanged
+      {
+        id: 'Metal Rate',
+        name: 'Metal Rate',
+        featured: [
+          {
+            name: 'New Arrivals',
+            href: '#',
+            imageSrc:
+              'https://tailwindui.com/plus/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
+            imageAlt:
+              'Drawstring top with elastic loop closure and textured interior padding.',
+          },
+          {
+            name: 'Artwork Tees',
+            href: '#',
+            imageSrc:
+              'https://tailwindui.com/plus/img/ecommerce-images/category-page-02-image-card-06.jpg',
+            imageAlt:
+              'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
+          },
+        ],
+        sections: [
+          {
+            id: 'Gold',
+            name: 'Gold Price',
+            items: gold
+              ? [
+                { name: `24k Price/Gram: ₹${gold.price_gram_24k}`, href: '#' },
+                { name: `22k Price/Gram: ₹${gold.price_gram_22k}`, href: '#' },
+                { name: `21k Price/Gram: ₹${gold.price_gram_21k}`, href: '#' },
+                { name: `20k Price/Gram: ₹${gold.price_gram_20k}`, href: '#' },
+                { name: `18k Price/Gram: ₹${gold.price_gram_18k}`, href: '#' },
+                { name: `16k Price/Gram: ₹${gold.price_gram_16k}`, href: '#' },
+                { name: `14k Price/Gram: ₹${gold.price_gram_14k}`, href: '#' },
+                { name: `10k Price/Gram: ₹${gold.price_gram_10k}`, href: '#' },
+              ]
+              : [{ name: 'Data not available', href: '#' }],
+          },
+          {
+            id: 'Silver',
+            name: 'Silver Price',
+            items: silver
+              ? [
+                { name: `24k Price/Gram: ₹${silver.price_gram_24k}`, href: '#' },
+                { name: `22k Price/Gram: ₹${silver.price_gram_22k}`, href: '#' },
+                { name: `21k Price/Gram: ₹${silver.price_gram_21k}`, href: '#' },
+                { name: `20k Price/Gram: ₹${silver.price_gram_20k}`, href: '#' },
+                { name: `18k Price/Gram: ₹${silver.price_gram_18k}`, href: '#' },
+                { name: `16k Price/Gram: ₹${silver.price_gram_16k}`, href: '#' },
+                { name: `14k Price/Gram: ₹${silver.price_gram_14k}`, href: '#' },
+                { name: `10k Price/Gram: ₹${silver.price_gram_10k}`, href: '#' },
+              ]
+              : [{ name: 'Data not available', href: '#' }],
+          },
+          {
+            id: 'Platinum',
+            name: 'Platinum Price',
+            items: platinum
+              ? [
+                { name: `24k Price/Gram: ₹${platinum.price_gram_24k}`, href: '#' },
+                { name: `22k Price/Gram: ₹${platinum.price_gram_22k}`, href: '#' },
+                { name: `21k Price/Gram: ₹${platinum.price_gram_21k}`, href: '#' },
+                { name: `20k Price/Gram: ₹${platinum.price_gram_20k}`, href: '#' },
+                { name: `18k Price/Gram: ₹${platinum.price_gram_18k}`, href: '#' },
+                { name: `16k Price/Gram: ₹${platinum.price_gram_16k}`, href: '#' },
+                { name: `14k Price/Gram: ₹${platinum.price_gram_14k}`, href: '#' },
+                { name: `10k Price/Gram: ₹${platinum.price_gram_10k}`, href: '#' },
+              ]
+              : [{ name: 'Data not available', href: '#' }],
+          },
+        ],
+      },
+    ],
+    pages: [{ name: 'Stores', href: '#' }],
+  };
+
+
   const [open, setOpen] = useState(false)
   const { user, logout } = userStore();
   const isAdmin = user?.role === "admin";
   const { cart } = cartStore();
   const [hoveredCategory, setHoveredCategory] = useState(null)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      // Redirect to the search page with the search term as a query parameter
+      navigate(`/products/search/${searchTerm}`);
+    }
+    setMobileSearchOpen(false);
+  }
   return (
     <>
       {/* ------------------ Top Navbar ------------------ */}
@@ -393,14 +305,17 @@ const Navbar = () => {
 
             {/* Full Search Bar for md and up */}
             <div className="flex-1 mx-8 hidden md:block">
-              <div className="relative">
-                <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search products, brands and more..."
-                  className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all duration-300 shadow-inner"
-                />
-              </div>
+              <form onSubmit={handleSearch}>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
+                  <input
+                    type="text"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search products, brands and more..."
+                    className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all duration-300 shadow-inner"
+                  />
+                </div>
+              </form>
             </div>
 
             {/* Right side icons */}
@@ -455,7 +370,7 @@ const Navbar = () => {
             </div>
           </div>
         </div>
-    
+
         {/* ------------------ Mobile Search Overlay ------------------ */}
         <Transition.Root show={mobileSearchOpen} as={Fragment}>
           <Dialog as="div" className="fixed inset-0 z-50 md:hidden" onClose={setMobileSearchOpen}>
@@ -482,14 +397,17 @@ const Navbar = () => {
                 leaveTo="translate-y-4 scale-95 opacity-0"
               >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                  <div className="relative">
-                    <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search products, brands and more..."
-                      className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-700 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all duration-300"
-                    />
-                  </div>
+                  <form onSubmit={handleSearch}>
+                    <div className="relative">
+                      <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
+                      <input
+                        type="text"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search products, brands and more..."
+                        className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-700 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all duration-300"
+                      />
+                    </div>
+                  </form>
                   <div className="mt-4 flex justify-end">
                     <button
                       type="button"
@@ -504,7 +422,7 @@ const Navbar = () => {
             </div>
           </Dialog>
         </Transition.Root>
-       </div>
+      </div>
       {/* ------------------ Main Navbar ------------------ */}
       {/* Offset the main navbar to account for the top navbar height (h-20) */}
       <div className="sticky w-full top-0 z-40">
@@ -626,7 +544,7 @@ const Navbar = () => {
 
           {/* Desktop Navbar */}
           <header className="relative">
-            <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <nav aria-label="Top" className="mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex h-20 items-center">
                 <button
                   type="button"
@@ -651,7 +569,7 @@ const Navbar = () => {
                     {navigation.categories.map((category) => (
                       <Popover
                         key={category.name}
-                        className="flex"
+                        className="flex relative"
                         onMouseEnter={() => setHoveredCategory(category.name)}
                         onMouseLeave={() => setHoveredCategory(null)}
                       >
@@ -660,8 +578,8 @@ const Navbar = () => {
                             <div className="relative flex">
                               <Popover.Button
                                 className={`relative z-10 flex items-center border-b-2 pt-px text-sm font-medium transition-all duration-300 ${(open || hoveredCategory === category.name)
-                                    ? 'border-amber-400 text-amber-300'
-                                    : 'border-transparent text-gray-300 hover:text-amber-400'
+                                  ? 'border-amber-400 text-amber-300'
+                                  : 'border-transparent text-gray-300 hover:text-amber-400'
                                   }`}
                               >
                                 {category.name}
@@ -678,50 +596,40 @@ const Navbar = () => {
                               leaveFrom="opacity-100 translate-y-0"
                               leaveTo="opacity-0 -translate-y-2"
                             >
-                              <Popover.Panel className="absolute inset-x-0 top-full bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl border-t border-gray-800 pt-2 z-50">
-                                <div className="mx-auto max-w-7xl px-8 py-8">
-                                  <div className="grid grid-cols-4 gap-x-8 gap-y-10">
-                                    <div className="col-span-1 grid grid-cols-1 gap-y-8">
-                                      {/* {category.featured.map((item) => (
-                                        <div key={item.name} className="group relative overflow-hidden rounded-xl">
-                                          <div className="aspect-h-1 aspect-w-2 overflow-hidden">
-                                            <img
-                                              src={item.imageSrc}
-                                              alt={item.imageAlt}
-                                              className="object-cover object-center transform transition duration-500 group-hover:scale-105"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-transparent to-transparent" />
-                                          </div>
-                                          <a href={item.href} className="mt-4 block font-medium text-amber-100">
-                                            {item.name}
-                                          </a>
-                                        </div>
-                                      ))} */}
-                                    </div>
-                                    <div className="col-span-3 grid grid-cols-3 gap-x-8">
-                                      {category.sections.map((section) => (
-                                        <div key={section.name}>
-                                          <h3 className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-4">
-                                            {section.name}
-                                          </h3>
-                                          <ul className="space-y-3">
-                                            {section.items.map((item) => (
-                                              <li key={item.name}>
-                                                <a
-                                                  href={item.href}
-                                                  className="text-gray-300 hover:text-amber-400 transition-colors"
-                                                >
-                                                  {item.name}
-                                                </a>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      ))}
-                                    </div>
+                              <Popover.Panel
+                                className={`absolute top-full left-0 bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl border-t border-gray-800 pt-2 z-50 ${category.sections.length > 1 ? 'w-[500px]' : 'w-auto min-w-[200px]'
+                                  }`}
+                                static
+                              >
+                                <div className="px-6 py-6">
+                                  <div
+                                    className={`grid ${category.sections.length > 1 ? 'grid-cols-2 lg:grid-cols-3 gap-8' : ''
+                                      }`}
+                                  >
+                                    {category.sections.map((section) => (
+                                      <div key={section.name} className="min-w-[150px]">
+                                        <h3 className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-3">
+                                          {section.name}
+                                        </h3>
+                                        <ul className="space-y-2.5">
+                                          {section.items.map((item) => (
+                                            <li key={item.name}>
+                                              <a
+                                                href={item.href}
+                                                className="text-gray-300 hover:text-amber-400 transition-colors text-sm"
+                                              >
+                                                {item.name}
+                                              </a>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
                               </Popover.Panel>
+
+
                             </Transition>
                           </>
                         )}
@@ -729,6 +637,7 @@ const Navbar = () => {
                     ))}
                   </div>
                 </Popover.Group>
+
 
                 {/* Right Section */}
                 <div className="ml-auto flex items-center space-x-8">

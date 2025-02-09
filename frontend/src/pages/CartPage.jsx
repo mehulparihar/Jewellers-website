@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cartStore } from '../stores/cartStore';
 
 const CartPage = () => {
-  const { removeFromCart, updateQuantity, cart, total, subtotal } = cartStore();
+  // Subscribe to state updates using hook selectors
+  const cart = cartStore((state) => state.cart);
+  const removeFromCart = cartStore((state) => state.removeFromCart);
+  const updateQuantity = cartStore((state) => state.updateQuantity);
+  const total = cartStore((state) => state.total);
+  const subtotal = cartStore((state) => state.subtotal);
+  
   const savings = subtotal - total;
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-amber-50 p-6 pt-24">
       <div className="max-w-7xl mx-auto">
@@ -37,14 +43,14 @@ const CartPage = () => {
             <div className="lg:col-span-2 space-y-6">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id} // using _id consistently
                   className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300
-                  border border-opacity-10 border-gray-300 hover:border-opacity-20"
+                    border border-opacity-10 border-gray-300 hover:border-opacity-20"
                 >
                   <button
                     onClick={() => removeFromCart(item._id)}
                     className="absolute -top-3 -right-3 bg-white rounded-full p-2 shadow-md hover:shadow-lg
-                    hover:scale-110 transition-all duration-200 text-rose-600 hover:text-rose-700"
+                      hover:scale-110 transition-all duration-200 text-rose-600 hover:text-rose-700"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -73,8 +79,8 @@ const CartPage = () => {
                             onClick={() => updateQuantity(item._id, item.quantity - 1)}
                             disabled={item.quantity === 1}
                             className={`w-10 h-10 rounded-lg flex items-center justify-center 
-                            ${item.quantity === 1 ? 'bg-gray-100 text-gray-400' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}
-                            transition-colors duration-200`}
+                              ${item.quantity === 1 ? 'bg-gray-100 text-gray-400' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}
+                              transition-colors duration-200`}
                           >
                             −
                           </button>
@@ -84,7 +90,7 @@ const CartPage = () => {
                           <button
                             onClick={() => updateQuantity(item._id, item.quantity + 1)}
                             className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-50 text-amber-600 
-                            hover:bg-amber-100 transition-colors duration-200"
+                              hover:bg-amber-100 transition-colors duration-200"
                           >
                             +
                           </button>
@@ -123,7 +129,7 @@ const CartPage = () => {
 
               <button
                 className="w-full py-4 bg-gradient-to-r from-rose-600 to-amber-600 text-white rounded-xl font-semibold
-                hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                  hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
                 onClick={() => console.log('Proceeding to checkout')}
               >
                 Secure Checkout

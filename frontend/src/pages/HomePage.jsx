@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import Navbar from '../components/Navbar';
@@ -11,11 +11,25 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { Link, redirect } from 'react-router-dom';
+import { userStore } from '../stores/userStore';
+import toast from 'react-hot-toast';
 
 const HomePage = () => {
   const { fetchFeaturedProducts, products } = productStore();
   const { addToCart } = cartStore();
-
+  const {user} = userStore();
+  const productListRef = useRef();
+  const handleScroll = () => {
+    productListRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
+  const handleCart = (product, e) => {
+    e.preventDefault();
+    if(!user) {
+      toast.error("Please Login to add products to cart");
+      return;
+    }
+    addToCart(product);
+  };
   useEffect(() => {
     fetchFeaturedProducts();
   }, [fetchFeaturedProducts]);
@@ -23,7 +37,7 @@ const HomePage = () => {
   const carouselImages = [
     'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1617119318270-0b5e5c7d7b0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'
+    // 'https://images.unsplash.com/photo-1617119318270-0b5e5c7d7b0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'
   ];
   
   return (
@@ -60,7 +74,7 @@ const HomePage = () => {
                   <p className="text-xl mb-6 opacity-90 animate-fadeInUp delay-100">
                     Discover our exquisite collection of handcrafted jewelry pieces
                   </p>
-                  <button className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full transition-all duration-300 hover:shadow-xl animate-fadeInUp delay-200">
+                  <button onClick={handleScroll} className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full transition-all duration-300 hover:shadow-xl animate-fadeInUp delay-200">
                     Explore Collection
                   </button>
                 </div>
@@ -71,7 +85,7 @@ const HomePage = () => {
       </div>
 
       {/* Featured Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div ref={productListRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Section Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-playfair font-bold text-gray-900 mb-4">
@@ -86,7 +100,7 @@ const HomePage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((product) => (
-              <Link to={`product/${product._id}`} >
+              <Link to={`products/product/${product._id}`} >
                 <div
                   key={product._id}
                   className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 
@@ -103,7 +117,7 @@ const HomePage = () => {
                     
                     {/* Quick Add Button */}
                     <button
-                      onClick={() => addToCart(product)}
+                      onClick={(e) => handleCart(product, e)}
                       className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 
                       px-6 py-2 bg-white/90 backdrop-blur-sm text-amber-600 rounded-full shadow-md 
                       hover:bg-white hover:shadow-lg transition-all duration-300"

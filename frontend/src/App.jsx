@@ -11,6 +11,8 @@ import CategoryPage from "./pages/CategoryPage";
 import CartPage from "./pages/CartPage";
 import { cartStore } from "./stores/cartStore";
 import ProductPage from "./pages/ProductPage";
+import ShopPage from "./pages/ShopPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   const {user, checkAuth} = userStore();
@@ -25,7 +27,7 @@ function App() {
   }, [getCartItems, user]);
   return (
     <div>
-        <Navbar/>
+      <Navbar/>
       <Routes>
         <Route path = '/' element = {<HomePage/>}/>
         <Route path = '/signup' element = {user ? <Navigate to = '/'/> : <SignUpPage/>}/>
@@ -33,7 +35,9 @@ function App() {
         <Route path = '/dashboard' element = {user?.role == "admin" ? <AdminPage/>  :  <Navigate to = '/login'/>}/>
         <Route path = '/category/:category' element = {<CategoryPage />}/>
         <Route path = '/cart' element = {user ? <CartPage /> : <Navigate to = '/login'/>}/>
-        <Route path = '/product/:productId' element = {<ProductPage/>}/>
+        <Route path = 'products/product/:productId' element = {<ProductPage/>}/>
+        <Route path = 'products/search/:search' element = {<SearchPage/>}/>
+        <Route path = 'products/shop/:category/:subCategory' element = {<ShopPage/>}/>
       </Routes>
       <Toaster/>
     </div>

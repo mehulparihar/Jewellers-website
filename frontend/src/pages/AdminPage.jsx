@@ -9,12 +9,12 @@ const AdminPage = () => {
     const [subcategories, setSubcategories] = useState([]);
 
     const categories = {
-        "Rings": ["Engagement", "Classic", "Solitaire", "Casual", "Navratna", "Mangalsutra ring", "Couple Bands", "Eternity"],
-        "Earrings": ["Studs", "Dangles", "Sui Dhaga", "Navratna", "Jhumka", "Hoops", "Solitaire"],
-        "Necklace": ["Collar", "Layered", "Pendant necklace", "Charm", "Delicate", "Lariat"],
-        "Bangles & Bracelets": ["Kada", "Delicate Bangles", "Oval Bracelets", "Tennis Bracelets", "Chain Bracelets", "Flexi Bracelets", "Eternity Bracelets"],
-        "Mangalsutras & Pendants": ["Mangalsutra Ring", "Mangalsutra With Chain", "Mangalsutra Bracelets", "Mangalsutra Chain", "Solitaire Mangalsutra", "Initial Pendants", "Solitaire Pendants", "Pendants With Chain", "Casual Pendants"],
-        "Other Jewellery": ["Peakock", "Chafa", "Butterfly", "Evil Eye", "Miracle Plate", "Kyra"]
+        "Rings": ["Engagement", "Classic", "Solitaire", "Casual", "Navratna", "Mangalsutra-ring", "Couple-Bands", "Eternity"],
+        "Earrings": ["Studs", "Dangles", "Sui-Dhaga", "Navratna", "Jhumka", "Hoops", "Solitaire"],
+        "Necklace": ["Collar", "Layered", "Pendant-necklace", "Charm", "Delicate", "Lariat"],
+        "Bangles-&-Bracelets": ["Kada", "Delicate-Bangles", "Oval-Bracelets", "Tennis-Bracelets", "Chain-Bracelets", "Flexi-Bracelets", "Eternity-Bracelets"],
+        "Mangalsutras-&-Pendants": ["Mangalsutra-Ring", "Mangalsutra-With-Chain", "Mangalsutra-Bracelets", "Mangalsutra-Chain", "Solitaire-Mangalsutra", "Initial-Pendants", "Solitaire-Pendants", "Pendants-With-Chain", "Casual-Pendants"],
+        "Other-Jewellery": ["Peakock", "Chafa", "Butterfly", "Evil-Eye", "Miracle-Plate", "Kyra"]
     };
 
 
