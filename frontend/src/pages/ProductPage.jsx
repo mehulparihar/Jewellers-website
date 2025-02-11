@@ -1,13 +1,72 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { productStore } from '../stores/productStore';
 import { motion } from 'framer-motion';
-import { FiShoppingCart, FiZap, FiAnchor, FiInfo } from 'react-icons/fi';
+import { FiShoppingCart, FiZap, FiAnchor, FiInfo, FiCamera, FiX } from 'react-icons/fi';
+import Draggable from 'react-draggable';
 
 const ProductPage = () => {
   const { fetchProductById, product } = productStore();
   const { productId } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (cameraActive) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+  }, [cameraActive]);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      setCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    }
+  };
+
+  const captureImage = () => {
+    const canvas = document.createElement('canvas');
+    const video = videoRef.current;
+    const productImg = new Image();
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    productImg.crossOrigin = "anonymous";
+    productImg.src = product.image;
+    productImg.onload = () => {
+      ctx.drawImage(
+        productImg,
+        position.x * canvas.width / video.clientWidth,
+        position.y * canvas.height / video.clientHeight,
+        productImg.width * scale,
+        productImg.height * scale
+      );
+      
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = 'virtual-try-on.png';
+      link.href = dataUrl;
+      link.click();
+    };
+  };
 
   useEffect(() => {
     fetchProductById(productId);
@@ -59,11 +118,41 @@ const ProductPage = () => {
                 whileHover={{ scale: 1.02 }}
                 className="relative aspect-square bg-slate-100 rounded-2xl overflow-hidden shadow-lg"
               >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-contain p-8 transition-transform duration-500 hover:scale-105"
-                />
+                {cameraActive ? (
+                  <div className="relative h-full w-full">
+                    <video 
+                      ref={videoRef} 
+                      autoPlay 
+                      playsInline 
+                      className="w-full h-full object-cover"
+                    />
+                    <Draggable
+                      bounds="parent"
+                      position={position}
+                      onDrag={(e, data) => setPosition({ x: data.x, y: data.y })}
+                    >
+                      <img
+                        src={product.image}
+                        alt="Product Preview"
+                        className="absolute top-0 left-0 max-w-[200px] cursor-move"
+                        style={{ transform: `scale(${scale})` }}
+                      />
+                    </Draggable>
+                    
+                    <button
+                      onClick={() => setCameraActive(false)}
+                      className="absolute top-2 right-2 p-2 bg-white/80 rounded-full backdrop-blur-sm hover:bg-white"
+                    >
+                      <FiX className="w-5 h-5 text-slate-800" />
+                    </button>
+                  </div>
+                ) : (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-contain p-8 transition-transform duration-500 hover:scale-105"
+                  />
+                )}
                 <div className="absolute bottom-4 right-4 flex gap-2">
                   {[1, 2, 3].map((_, index) => (
                     <button
@@ -75,6 +164,43 @@ const ProductPage = () => {
                   ))}
                 </div>
               </motion.div>
+              
+              {cameraActive ? (
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-center">
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.1"
+                      value={scale}
+                      onChange={(e) => setScale(parseFloat(e.target.value))}
+                      className="flex-1"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={captureImage}
+                      className="px-6 py-3 bg-amber-500 text-white rounded-lg font-medium flex items-center gap-2"
+                    >
+                      <FiCamera className="w-5 h-5" />
+                      Capture
+                    </motion.button>
+                  </div>
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setCameraActive(true)}
+                  className="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold flex items-center justify-center gap-2"
+                >
+                  <FiCamera className="w-5 h-5" />
+                  Try It Virtually
+                </motion.button>
+              )}
+
+              
 
               {/* Quick Specs */}
               <div className="grid grid-cols-2 gap-4">

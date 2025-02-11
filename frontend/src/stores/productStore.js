@@ -28,7 +28,6 @@ export const productStore = create((set, get) => ({
       }
       try {
         const response = await axios.get(`/products/product/${productId}`);
-        console.log(response);
         set({product : response.data});
       } catch (error) {
         toast.error(error.message.data.error || "Failed to fetch product");
@@ -51,7 +50,6 @@ export const productStore = create((set, get) => ({
         }
     },
     fetchProductBySubcategory : async (category, subCategory) => {
-        console.log(category, subCategory);
         try {
             const response = await axios.get(`/products/shop/${category}/${subCategory}`);
             set({products : response.data.products});
@@ -60,7 +58,6 @@ export const productStore = create((set, get) => ({
         }
     },
     fetchProductBySearch : async (search) => {
-        console.log(search);
         try {
             const response = await axios.get(`/products/search/${search}`);
             set({products : response.data.products});
@@ -95,7 +92,6 @@ export const productStore = create((set, get) => ({
             set({products : response.data});
         } catch (error) {
             set({error : "Failed to fetch products"})
-            console.log(error.message);
         }
     }
 }))

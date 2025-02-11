@@ -54,7 +54,6 @@ export const signup = async (req, res) => {
             role : user.role,
         });
     } catch (error) {
-        console.log("error in signup controller", error.message);
         res.status(500).json({message : error.message});
     }
 };
@@ -71,7 +70,6 @@ export const logout = async (req, res) => {
         res.clearCookie("refreshToken");
         res.json({message : "Logged out successfully"});
     } catch (error) {
-        console.log("error in logout controller", error.message);
         res.status(500).json({message : "Server error", error : error.message});
     }
 };
@@ -98,7 +96,6 @@ export const login = async (req, res) => {
             res.status(401).json({message : "Invalid email or password"});
         }
     } catch (error) {
-        console.log("error in login controller", error.message);
         res.status(500).json({ message : error.message})
     }   
 };

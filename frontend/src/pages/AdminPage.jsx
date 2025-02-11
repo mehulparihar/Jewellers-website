@@ -21,7 +21,6 @@ const AdminPage = () => {
     useEffect(() => {
         fetchAllProducts();
     }, [fetchAllProducts])
-    // console.log("product", products);
 
     const [expandedSections, setExpandedSections] = useState({
         basic: true,
